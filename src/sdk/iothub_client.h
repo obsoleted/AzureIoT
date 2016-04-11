@@ -15,14 +15,16 @@
 #ifndef IOTHUB_CLIENT_H
 #define IOTHUB_CLIENT_H
 
+typedef struct IOTHUB_CLIENT_INSTANCE_TAG* IOTHUB_CLIENT_HANDLE;
+
 #include "iothub_client_ll.h"
+#include "iothubtransport.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-    typedef struct IOTHUB_CLIENT_INSTANCE_TAG* IOTHUB_CLIENT_HANDLE;
 
     /**
     * @brief	Creates a IoT Hub client for communication with an existing
@@ -54,6 +56,21 @@ extern "C"
     * 			invoking other functions for IoT Hub client and @c NULL on failure.
     */
     extern IOTHUB_CLIENT_HANDLE IoTHubClient_Create(const IOTHUB_CLIENT_CONFIG* config);
+
+    /**
+	* @brief	Creates a IoT Hub client for communication with an existing IoT
+	* 			Hub using the specified parameters.
+	*
+	* @param	transportHandle	TRANSPORT_HANDLE which represents a connection.
+	* @param	config	Pointer to an @c IOTHUB_CLIENT_CONFIG structure
+	*
+	*			The API allows sharing of a connection across multiple
+	*			devices. This is a blocking call.
+	*
+	* @return	A non-NULL @c IOTHUB_CLIENT_HANDLE value that is used when
+	* 			invoking other functions for IoT Hub client and @c NULL on failure.
+	*/
+	extern IOTHUB_CLIENT_HANDLE IoTHubClient_CreateWithTransport(TRANSPORT_HANDLE transportHandle, const IOTHUB_CLIENT_CONFIG* config);
 
     /**
     * @brief	Disposes of resources allocated by the IoT Hub client. This is a
@@ -163,7 +180,9 @@ extern "C"
     *				- @b CURLOPT_VERBOSE - only available for HTTP protocol and only
     *				  when CURL is used. It has the same meaning as CURL's option with the same
     *				  name. @p value is pointer to a long.
-    *
+    *				- @b messageTimeout - the maximum time in milliseconds until a message 
+    *                 is timeouted. The time starts at IoTHubClient_SendEventAsync. By default,
+    *                 messages do not expire. 
     * @return	IOTHUB_CLIENT_OK upon success or an error code upon failure.
     */
     extern IOTHUB_CLIENT_RESULT IoTHubClient_SetOption(IOTHUB_CLIENT_HANDLE iotHubClientHandle, const char* optionName, const void* value);

@@ -4,7 +4,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-#include "sdk/httpapi.h"
+#include "azure_c_shared_utility/httpapi.h"
 #include "iot_logging.h"
 
 #include "util/HTTPSClient.h"

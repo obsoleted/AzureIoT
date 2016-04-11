@@ -9,15 +9,19 @@
 #ifndef IOTHUB_MESSAGE_H
 #define IOTHUB_MESSAGE_H
 
-#include "macro_utils.h"
-#include "map.h" 
+#include "azure_c_shared_utility/macro_utils.h"
+#include "azure_c_shared_utility/map.h" 
 
 #ifdef __cplusplus
 #include <cstddef>
+#include <ctime>
+#include <cstdint>
 extern "C" 
 {
 #else
 #include <stddef.h>
+#include <time.h>
+#include <stdint.h>
 #endif
 
 #define IOTHUB_MESSAGE_RESULT_VALUES         \

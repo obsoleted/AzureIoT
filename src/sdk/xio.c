@@ -6,8 +6,8 @@
 #include <crtdbg.h>
 #endif
 #include <stddef.h>
-#include "gballoc.h"
-#include "xio.h"
+#include "azure_c_shared_utility/gballoc.h"
+#include "azure_c_shared_utility/xio.h"
 
 typedef struct XIO_INSTANCE_TAG
 {
@@ -26,7 +26,8 @@ XIO_HANDLE xio_create(const IO_INTERFACE_DESCRIPTION* io_interface_description, 
         (io_interface_description->concrete_io_open == NULL) ||
         (io_interface_description->concrete_io_close == NULL) ||
         (io_interface_description->concrete_io_send == NULL) ||
-        (io_interface_description->concrete_io_dowork == NULL))
+        (io_interface_description->concrete_io_dowork == NULL) ||
+        (io_interface_description->concrete_io_setoption == NULL))
     {
         xio_instance = NULL;
     }
@@ -69,7 +70,7 @@ void xio_destroy(XIO_HANDLE xio)
     }
 }
 
-int xio_open(XIO_HANDLE xio, ON_IO_OPEN_COMPLETE on_io_open_complete, ON_BYTES_RECEIVED on_bytes_received, ON_IO_ERROR on_io_error, void* callback_context)
+int xio_open(XIO_HANDLE xio, ON_IO_OPEN_COMPLETE on_io_open_complete, void* on_io_open_complete_context, ON_BYTES_RECEIVED on_bytes_received, void* on_bytes_received_context, ON_IO_ERROR on_io_error, void* on_io_error_context)
 {
     int result;
 
@@ -82,8 +83,8 @@ int xio_open(XIO_HANDLE xio, ON_IO_OPEN_COMPLETE on_io_open_complete, ON_BYTES_R
     {
         XIO_INSTANCE* xio_instance = (XIO_INSTANCE*)xio;
 
-        /* Codes_SRS_XIO_01_019: [xio_open shall call the specific concrete_io_open function specified in xio_create, passing the receive_callback and receive_callback_context arguments.] */
-        if (xio_instance->io_interface_description->concrete_io_open(xio_instance->concrete_xio_handle, on_io_open_complete, on_bytes_received, on_io_error, callback_context) != 0)
+        /* Codes_SRS_XIO_01_019: [xio_open shall call the specific concrete_xio_open function specified in xio_create, passing callback function and context arguments for three events: open completed, bytes received, and IO error.] */
+        if (xio_instance->io_interface_description->concrete_io_open(xio_instance->concrete_xio_handle, on_io_open_complete, on_io_open_complete_context, on_bytes_received, on_bytes_received_context, on_io_error, on_io_error_context) != 0)
         {
             /* Codes_SRS_XIO_01_022: [If the underlying concrete_io_open fails, xio_open shall return a non-zero value.] */
             result = __LINE__;
@@ -161,4 +162,26 @@ void xio_dowork(XIO_HANDLE xio)
         /* Codes_SRS_XIO_01_012: [xio_dowork shall call the concrete XIO implementation specified in xio_create, by calling the concrete_io_dowork function.] */
         xio_instance->io_interface_description->concrete_io_dowork(xio_instance->concrete_xio_handle);
     }
+}
+
+int xio_setoption(XIO_HANDLE xio, const char* optionName, const void* value)
+{
+    int result;
+
+    /* Codes_SRS_XIO_03_030: [If the xio argumnent or the optionName argument is NULL, xio_setoption shall return a non-zero value.] */
+    if (xio == NULL || optionName == NULL)
+    {
+        result = __LINE__;
+    }
+    else
+    {
+        XIO_INSTANCE* xio_instance = (XIO_INSTANCE*)xio;
+
+        /* Codes_SRS_XIO_003_028: [xio_setoption shall pass the optionName and value to the concrete IO implementation specified in xio_create by invoking the concrete_xio_setoption function.] */
+        /* Codes_SRS_XIO_03_029: [xio_setoption shall return 0 upon success.] */
+        /* Codes_SRS_XIO_03_031: [If the underlying concrete_xio_setoption fails, xio_setOption shall return a non-zero value.] */
+        result = xio_instance->io_interface_description->concrete_io_setoption(xio_instance->concrete_xio_handle, optionName, value);
+    }
+
+    return result;
 }

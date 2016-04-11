@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 
-#include "sdk/threadapi.h"
+#include "azure_c_shared_utility/threadapi.h"
 
 void ThreadAPI_Sleep(unsigned int milliseconds)
 {
